@@ -17,6 +17,7 @@
 @property(nonatomic, strong) UILabel *progressLabel;
 @property(nonatomic, strong) UIButton *startButton;
 @property(nonatomic, strong) UIButton *pauseButton;
+@property(nonatomic, strong) UIButton *startAndPauseButton;
 
 /** AFNetworking断点下载（支持离线）需用到的属性 **********/
 /** 文件的总长度 */
@@ -49,6 +50,7 @@
     [self addSubview:self.progressLabel];
     [self addSubview:self.startButton];
     [self addSubview:self.pauseButton];
+    [self addSubview:self.startAndPauseButton];
     
     [self makeConstraints];
 }
@@ -79,6 +81,13 @@
         make.height.mas_equalTo(@50);
         make.width.mas_equalTo(@100);
         make.centerX.equalTo(self.progressView.mas_right);
+    }];
+    
+    [self.startAndPauseButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.pauseButton.mas_bottom).offset(20);
+        make.height.mas_equalTo(@50);
+        make.width.mas_equalTo(@100);
+        make.centerX.equalTo(self.mas_centerX);
     }];
 }
 
@@ -121,6 +130,10 @@
     self.downloadTask = nil;
 }
 
+-  (void)startAndPauseButtonClick{
+    NSLog(@"startAndPauseButtonClick");
+    
+}
 
 #pragma mark - 懒加载
 
@@ -168,6 +181,20 @@
     return _pauseButton;
 }
 
+- (UIButton *)startAndPauseButton{
+    if (!_startAndPauseButton) {
+        _startAndPauseButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_startAndPauseButton setBackgroundImage:[UIImage imageNamed:@"desktopPic.JPG"] forState:UIControlStateNormal];
+        
+//        [_pauseButton setTitle:@"开始" forState:UIControlStateNormal];
+//        _pauseButton.layer.cornerRadius = 10;
+//        [_pauseButton addTarget:self action:@selector(startAndPauseButtonClick) forControlEvents:UIControlEventTouchUpInside];
+        
+        _pauseButton.layer.masksToBounds = YES;
+    }
+    return _startAndPauseButton;
+}
+
 // 下载相关懒加载
 /**
  * manager的懒加载
@@ -192,16 +219,17 @@
         // 2. 创建request请求
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
         
-        // 设置HTTP请求头中的Range
+        // 设置HTTP请求头中的Range(只请求指定部分的实体)
         NSString *range = [NSString stringWithFormat:@"bytes=%zd-", self.currentLength];
         [request setValue:range forHTTPHeaderField:@"Range"];
         
         __weak typeof(self) weakSelf = self;
         
-        // 3.1 网络请求，并且设置完成回调（不然完成一次之后，下次就下载不了了）
+        // 3.1 调用manager中的dataTaskWithRequest方法构建downloadTask
         _downloadTask = [self.manager dataTaskWithRequest:request uploadProgress:nil downloadProgress:nil completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
             NSLog(@"dataTaskWithRequest");
             
+            // 设置完成回调（不然完成一次之后，下次就下载不了了）
             // 清空长度
             weakSelf.currentLength = 0;
             weakSelf.fileLength = 0;
@@ -212,7 +240,7 @@
             
         }];
         
-        // 3.2 
+        // 3.2 设置响应block（文件长度、文件路径、文件句柄、返回值）
         [self.manager setDataTaskDidReceiveResponseBlock:^NSURLSessionResponseDisposition(NSURLSession * _Nonnull session, NSURLSessionDataTask * _Nonnull dataTask, NSURLResponse * _Nonnull response) {
             NSLog(@"NSURLSessionResponseDisposition");
             
@@ -243,7 +271,7 @@
             return NSURLSessionResponseAllow;
         }];
         
-        // 3.3 
+        // 3.3 设置数据block（根据文件句柄来判断从哪里开始写）
         [self.manager setDataTaskDidReceiveDataBlock:^(NSURLSession * _Nonnull session, NSURLSessionDataTask * _Nonnull dataTask, NSData * _Nonnull data) {
             NSLog(@"setDataTaskDidReceiveDataBlock");
             
