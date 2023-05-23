@@ -16,6 +16,8 @@
 		9649B64D2A1070B700281656 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9649B64C2A1070B700281656 /* main.m */; };
 		9649B6552A1070EC00281656 /* DownLoadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9649B6542A1070EC00281656 /* DownLoadViewController.m */; };
 		9649B6582A10710400281656 /* DownloadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9649B6572A10710400281656 /* DownloadView.m */; };
+		9649B65D2A1CB6C500281656 /* desktopPic.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 9649B65C2A1CB6C500281656 /* desktopPic.JPG */; };
+		9649B65F2A1D1C2700281656 /* stopImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9649B65E2A1D1C2700281656 /* stopImage.jpg */; };
 		F1C3B61144FD589EF75729F9 /* Pods_DownloadLearn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9F9C7174D97BEA3EA899CC8 /* Pods_DownloadLearn.framework */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +40,8 @@
 		9649B6542A1070EC00281656 /* DownLoadViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownLoadViewController.m; sourceTree = "<group>"; };
 		9649B6562A10710400281656 /* DownloadView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadView.h; sourceTree = "<group>"; };
 		9649B6572A10710400281656 /* DownloadView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadView.m; sourceTree = "<group>"; };
+		9649B65C2A1CB6C500281656 /* desktopPic.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = desktopPic.JPG; sourceTree = "<group>"; };
+		9649B65E2A1D1C2700281656 /* stopImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = stopImage.jpg; sourceTree = "<group>"; };
 		F9F9C7174D97BEA3EA899CC8 /* Pods_DownloadLearn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DownloadLearn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -82,6 +86,7 @@
 		9649B6392A1070B300281656 /* DownloadLearn */ = {
 			isa = PBXGroup;
 			children = (
+				9649B65A2A1CB5CC00281656 /* Resources */,
 				9649B6592A10711600281656 /* DownLoad */,
 				9649B63A2A1070B300281656 /* AppDelegate.h */,
 				9649B63B2A1070B300281656 /* AppDelegate.m */,
@@ -109,13 +114,29 @@
 			path = DownLoad;
 			sourceTree = "<group>";
 		};
+		9649B65A2A1CB5CC00281656 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				9649B65B2A1CB5D600281656 /* Image */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		9649B65B2A1CB5D600281656 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				9649B65C2A1CB6C500281656 /* desktopPic.JPG */,
+				9649B65E2A1D1C2700281656 /* stopImage.jpg */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
 		EE04A399517CB0C7F8217306 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
 				845FFA449E2CCCB1CB9B8DC4 /* Pods-DownloadLearn.debug.xcconfig */,
 				6E239130F53BEB578F1A226C /* Pods-DownloadLearn.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -180,7 +201,9 @@
 			files = (
 				9649B64A2A1070B700281656 /* LaunchScreen.storyboard in Resources */,
 				9649B6472A1070B700281656 /* Assets.xcassets in Resources */,
+				9649B65D2A1CB6C500281656 /* desktopPic.JPG in Resources */,
 				9649B6452A1070B300281656 /* Main.storyboard in Resources */,
+				9649B65F2A1D1C2700281656 /* stopImage.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

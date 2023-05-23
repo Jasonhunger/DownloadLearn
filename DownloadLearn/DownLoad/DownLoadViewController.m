@@ -7,7 +7,13 @@
 
 #import "DownLoadViewController.h"
 
+#import "DownloadView.h"
+
+#import <Masonry/Masonry.h>
+
 @interface DownLoadViewController ()
+
+@property(nonatomic, strong) DownloadView *dlView;
 
 @end
 
@@ -15,17 +21,35 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    [self setupViews];
+    
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (void)setupViews {
+    
+    [self.view addSubview:self.dlView];
+    
+    [self makeConstraints];
 }
-*/
+
+- (void)makeConstraints {
+    [self.dlView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.left.height.width.equalTo(self.view);
+//        make.top.left.equalTo(self.view);
+//        make.height.width.mas_equalTo(@200);
+    }];
+}
+
+# pragma mark - 懒加载
+- (DownloadView *)dlView{
+    if (!_dlView) {
+        _dlView = [[DownloadView alloc] init];
+    }
+    return _dlView;
+}
+
+
 
 @end

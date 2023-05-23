@@ -7,6 +7,9 @@
 
 #import "ViewController.h"
 
+#import "DownLoad/DownloadView.h"
+#import <Masonry/Masonry.h>
+
 @interface ViewController ()
 
 @end

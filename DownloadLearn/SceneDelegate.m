@@ -19,13 +19,20 @@
 
 
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+    
     DownLoadViewController *dlVC = [[DownLoadViewController alloc] init];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.navController = [[UINavigationController alloc] initWithRootViewController:dlVC];
     self.window.rootViewController = self.navController;
+    // 将window设置给UIWindowScene对象
+    UIWindowScene *windowScene = (UIWindowScene *)scene;
+    self.window.windowScene = windowScene;
     [self.window makeKeyAndVisible];
     
     // scene --> window --> navigationController --> viewController
+    // window -->(rootViewController): navigationController(viewController) -->
+    //        -->(windowScene): UIWindowScene
+    // [self.window makeKeyAndVisible];
 }
 
 

@@ -18,6 +18,7 @@
 @property(nonatomic, strong) UIButton *startButton;
 @property(nonatomic, strong) UIButton *pauseButton;
 @property(nonatomic, strong) UIButton *startAndPauseButton;
+@property (nonatomic, assign) BOOL isPaused;
 
 /** AFNetworking断点下载（支持离线）需用到的属性 **********/
 /** 文件的总长度 */
@@ -40,7 +41,9 @@
 {
     self = [super init];
     if (self) {
+        self.backgroundColor = [UIColor whiteColor];
         [self setupViews];
+        [self addKVO];
     }
     return self;
 }
@@ -58,7 +61,7 @@
 - (void)makeConstraints {
     
     [self.progressView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self).offset(50);
+        make.top.equalTo(self).offset(200);
         make.centerX.equalTo(self.mas_centerX);
         make.width.mas_equalTo(@200);
     }];
@@ -89,6 +92,27 @@
         make.width.mas_equalTo(@100);
         make.centerX.equalTo(self.mas_centerX);
     }];
+    
+    [self loadData];
+}
+
+- (void) loadData{
+    self.isPaused = NO;
+}
+
+- (void)addKVO{
+    // 添加观察者
+    [self addObserver:self forKeyPath:@"progressView.progress" options:NSKeyValueObservingOptionNew context:nil];
+}
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"progressView.progress"]) {
+        if ([change[NSKeyValueChangeNewKey] isEqualToNumber:@(1.0)]) {
+            [self pauseButtonClick];
+        }
+    }
+}
+- (void)dealloc {
+    [self removeObserver:self forKeyPath:@"progressView.progress"];
 }
 
 /**
@@ -128,11 +152,29 @@
     NSLog(@"pauseButtonClick");
     [self.downloadTask suspend];
     self.downloadTask = nil;
+    
+    [self setStartAndPauseButtonTitle:@"开始" ImageName:@"desktopPic.JPG"];
 }
 
 -  (void)startAndPauseButtonClick{
     NSLog(@"startAndPauseButtonClick");
-    
+    self.isPaused = !self.isPaused;
+    if (self.isPaused) {
+//        [_startAndPauseButton setTitle:@"暂停" forState:UIControlStateNormal];
+//        [_startAndPauseButton setBackgroundImage:[UIImage imageNamed:@"stopImage.jpg"] forState:UIControlStateNormal];
+        [self setStartAndPauseButtonTitle:@"暂停" ImageName:@"stopImage.jpg"];
+        [self startButtonClick];
+    }else{
+//        [_startAndPauseButton setTitle:@"开始" forState:UIControlStateNormal];
+//        [_startAndPauseButton setBackgroundImage:[UIImage imageNamed:@"desktopPic.JPG"] forState:UIControlStateNormal];
+        [self setStartAndPauseButtonTitle:@"开始" ImageName:@"desktopPic.JPG"];
+        [self pauseButtonClick];
+    }
+}
+
+- (void)setStartAndPauseButtonTitle:(NSString *)title ImageName:(NSString *)imageName{
+    [_startAndPauseButton setTitle:title forState:UIControlStateNormal];
+    [_startAndPauseButton setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
 }
 
 #pragma mark - 懒加载
@@ -148,7 +190,7 @@
 - (UILabel *)progressLabel{
     if (!_progressLabel) {
         _progressLabel = [[UILabel alloc] init];
-        _progressLabel.text = @"当前下载进度:00.00%%";
+        _progressLabel.text = @"当前下载进度:00.00%";
         _progressLabel.textColor = [UIColor blackColor];
         _progressLabel.font = [UIFont systemFontOfSize:16.0];
     }
@@ -184,13 +226,18 @@
 - (UIButton *)startAndPauseButton{
     if (!_startAndPauseButton) {
         _startAndPauseButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        [_startAndPauseButton setBackgroundImage:[UIImage imageNamed:@"desktopPic.JPG"] forState:UIControlStateNormal];
-        
-//        [_pauseButton setTitle:@"开始" forState:UIControlStateNormal];
-//        _pauseButton.layer.cornerRadius = 10;
-//        [_pauseButton addTarget:self action:@selector(startAndPauseButtonClick) forControlEvents:UIControlEventTouchUpInside];
-        
-        _pauseButton.layer.masksToBounds = YES;
+        _startAndPauseButton.layer.cornerRadius = 10;
+        [_startAndPauseButton addTarget:self action:@selector(startAndPauseButtonClick) forControlEvents:UIControlEventTouchUpInside];
+        if (self.isPaused) {
+            [_startAndPauseButton setTitle:@"暂停" forState:UIControlStateNormal];
+            [_startAndPauseButton setBackgroundImage:[UIImage imageNamed:@"stopImage.jpg"] forState:UIControlStateNormal];
+        }else{
+            [_startAndPauseButton setTitle:@"开始" forState:UIControlStateNormal];
+            [_startAndPauseButton setBackgroundImage:[UIImage imageNamed:@"desktopPic.JPG"] forState:UIControlStateNormal];
+        }
+        [_startAndPauseButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+        _startAndPauseButton.titleLabel.font = [UIFont systemFontOfSize:26];
+        _startAndPauseButton.layer.masksToBounds = YES;
     }
     return _startAndPauseButton;
 }
@@ -274,7 +321,7 @@
         // 3.3 设置数据block（根据文件句柄来判断从哪里开始写）
         [self.manager setDataTaskDidReceiveDataBlock:^(NSURLSession * _Nonnull session, NSURLSessionDataTask * _Nonnull dataTask, NSData * _Nonnull data) {
             NSLog(@"setDataTaskDidReceiveDataBlock");
-            
+        
             // 指定数据的写入位置 -- 文件内容的最后面
             [weakSelf.fileHandle seekToEndOfFile];
             
@@ -294,9 +341,23 @@
                 } else {
                     weakSelf.progressView.progress =  1.0 * weakSelf.currentLength / weakSelf.fileLength;
                     weakSelf.progressLabel.text = [NSString stringWithFormat:@"当前下载进度:%.2f%%",100.0 * weakSelf.currentLength / weakSelf.fileLength];
+//                    // 下载完成之后，再点击下载会出现下载进度为100.04%，并且文件已损坏（但文件下载进度是100点%的时候是好的）
+//                    // 这个解决方案不行，只解决了显示的问题，没解决下载的问题
+//                    if (weakSelf.progressView.progress > 1.0) {
+//                        weakSelf.progressView.progress = 1.00;
+//                    }
+                    
+//                    if (weakSelf.progressView.progress >= 1.0) {
+//                        // 下载完成后的处理
+//                        [weakSelf pauseButtonClick];
+//                        [weakSelf.fileHandle closeFile];
+//                        weakSelf.fileHandle = nil;
+//                        weakSelf.downloadTask = nil;
+////                        weakSelf.progressLabel.text = @"下载已完成";
+//                    }
                 }
-               
             }];
+            
         }];
     }
     return _downloadTask;
