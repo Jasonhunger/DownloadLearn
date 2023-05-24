@@ -325,15 +325,19 @@
             // 指定数据的写入位置 -- 文件内容的最后面
             [weakSelf.fileHandle seekToEndOfFile];
             
-            // 向沙盒写入数据
-            [weakSelf.fileHandle writeData:data];
-            
-            // 拼接文件总长度
-            weakSelf.currentLength += data.length;
+            // bug：没有这个进度判断，下载完成之后再点击下载，会导致下载进度变成100.04%，从而文件损坏
+            if (self.progressView.progress < 1.0) {
+                // 向沙盒写入数据
+                [weakSelf.fileHandle writeData:data];
+                
+                // 拼接文件总长度
+                weakSelf.currentLength += data.length;
+            }
             
             // 获取主线程，不然无法正确显示进度。
             NSOperationQueue* mainQueue = [NSOperationQueue mainQueue];
             [mainQueue addOperationWithBlock:^{
+                
                 // 下载进度
                 if (weakSelf.fileLength == 0) {
                     weakSelf.progressView.progress = 0.0;
@@ -341,20 +345,6 @@
                 } else {
                     weakSelf.progressView.progress =  1.0 * weakSelf.currentLength / weakSelf.fileLength;
                     weakSelf.progressLabel.text = [NSString stringWithFormat:@"当前下载进度:%.2f%%",100.0 * weakSelf.currentLength / weakSelf.fileLength];
-//                    // 下载完成之后，再点击下载会出现下载进度为100.04%，并且文件已损坏（但文件下载进度是100点%的时候是好的）
-//                    // 这个解决方案不行，只解决了显示的问题，没解决下载的问题
-//                    if (weakSelf.progressView.progress > 1.0) {
-//                        weakSelf.progressView.progress = 1.00;
-//                    }
-                    
-//                    if (weakSelf.progressView.progress >= 1.0) {
-//                        // 下载完成后的处理
-//                        [weakSelf pauseButtonClick];
-//                        [weakSelf.fileHandle closeFile];
-//                        weakSelf.fileHandle = nil;
-//                        weakSelf.downloadTask = nil;
-////                        weakSelf.progressLabel.text = @"下载已完成";
-//                    }
                 }
             }];
             
